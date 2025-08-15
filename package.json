@@ -12,25 +12,25 @@
     "build": "cross-env NODE_ENV=production bun run ./bin/build.js"
   },
   "devDependencies": {
-    "@finsweet/eslint-config": "^2.0.7",
+    "@finsweet/eslint-config": "^3.0.3",
     "@finsweet/tsconfig": "^1.4.2",
-    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@typescript-eslint/eslint-plugin": "^8.39.1",
+    "@typescript-eslint/parser": "^8.39.1",
     "@types/jquery": "^3.5.32",
-    "browserslist": "^4.0.0",
+    "browserslist": "^4.25.2",
     "browserslist-to-esbuild": "^2.1.1",
-    "cross-env": "^7.0.3",
-    "esbuild": "^0.20.2",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.6",
+    "cross-env": "^10.0.0",
+    "esbuild": "^0.25.9",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "gsap": "^3.13.0",
     "path": "^0.12.7",
-    "prettier": "^3.5.3",
-    "swiper": "^11.2.6",
+    "prettier": "^3.6.2",
+    "swiper": "^11.2.10",
     "tiny-glob": "^0.2.9",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "@finsweet/ts-utils": "^0.40.0"
