@@ -1,0 +1,1 @@
+"use strict";(()=>{function e(){let r=document.querySelectorAll('[data-el="current-year"]'),o=new Date().getFullYear().toString();r.forEach(t=>{t.textContent=o})}gsap.registerPlugin(ScrollTrigger);window.Webflow=window.Webflow||[];window.Webflow?.push(()=>{e()});})();
