@@ -54,6 +54,9 @@ try {
     let { port } = await ctx.serve({
       servedir: BUILD_DIRECTORY,
       port: 3000,
+      cors: {
+        origin: '*',
+      },
     });
 
     console.log(`Serving at http://localhost:${port}`);
