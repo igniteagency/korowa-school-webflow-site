@@ -11,6 +11,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 window.Webflow = window.Webflow || [];
 window.Webflow?.push(() => {
+  window.WF_IX = window.Webflow?.require('ix3');
+
   // Set current year on respective elements
   setCurrentYear();
   addMainElementId();
