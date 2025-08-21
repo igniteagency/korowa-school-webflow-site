@@ -34,12 +34,14 @@ function dialogInit() {
     openTriggersList.forEach((openTriggerEl) => {
       openTriggerEl.addEventListener('click', () => {
         dialogEl.showModal();
+        window.WF_IX.emit('onDialogOpen', {}, dialogEl);
       });
     });
 
     closeTriggersList.forEach((closeTriggerEl) => {
       closeTriggerEl.addEventListener('click', () => {
         dialogEl.close();
+        window.WF_IX.emit('onDialogClose', {}, dialogEl);
       });
     });
   });
