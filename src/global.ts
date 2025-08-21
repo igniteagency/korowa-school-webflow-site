@@ -1,5 +1,6 @@
 import { animatedDetailsAccordions } from '$components/accordions';
 import '$components/dialog';
+import NavMenu from '$components/nav';
 import { setCurrentYear } from '$utils/current-year';
 import '$utils/disable-webflow-scroll';
 import { disableWebflowAnchorSmoothScroll } from '$utils/disable-webflow-scroll';
@@ -18,9 +19,15 @@ window.Webflow?.push(() => {
   addMainElementId();
   handleExternalLinks();
 
+  initComponents();
+
   UIFunctions();
   webflowOverrides();
 });
+
+function initComponents() {
+  const navMenu = new NavMenu();
+}
 
 function UIFunctions() {
   duplicateMarqueeList();
