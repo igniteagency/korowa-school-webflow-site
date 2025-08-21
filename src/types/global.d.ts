@@ -8,6 +8,17 @@ import type { ScriptOptions } from 'src/entry';
 
 import type { SCRIPTS_ENV } from '$dev/env';
 
+interface Webflow_IX3 extends Webflow.require {
+  emit: (
+    eventName: string, 
+    details?: any, 
+    targetElement?: Element | null, 
+    options?: { bubbles?: boolean }
+  ) => void;
+  destroy: () => void;
+  async ready: () => Promise<void>;
+}
+
 declare global {
   /** GSAP and sub-libs loading from Webflow CDN */
   gsap: GSAP;
@@ -32,6 +43,7 @@ declare global {
   /** Global window types */
   interface Window {
     Webflow: Webflow;
+    WF_IX: Webflow_IX3;
 
     SCRIPTS_ENV: SCRIPTS_ENV;
     setScriptMode(env: SCRIPTS_ENV): void;
