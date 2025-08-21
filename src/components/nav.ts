@@ -31,7 +31,6 @@ class NavMenu {
     this.detailsElements.forEach((details) => {
       if (details !== openDetails && details.open) {
         details.open = false;
-        this.emitCloseEvent(details);
       }
     });
   }
@@ -49,14 +48,6 @@ class NavMenu {
     const directDiv = details.querySelector(':scope > div');
     if (directDiv) {
       window.WF_IX.emit('onNavDetailsOpen', {}, directDiv);
-    }
-  }
-
-  private emitCloseEvent(details: HTMLDetailsElement) {
-    return;
-    const directDiv = details.querySelector(':scope > div');
-    if (directDiv) {
-      const closeEvent = new CustomEvent('close', { bubbles: true });
     }
   }
 }
