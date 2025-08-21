@@ -5,7 +5,9 @@
   "type": "module",
   "main": "src/entry.js",
   "module": "src/entry.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "author": "parasshah195",
   "scripts": {
     "dev": "cross-env NODE_ENV=development bun run ./bin/build.js",
@@ -15,9 +17,9 @@
     "@finsweet/eslint-config": "^3.0.3",
     "@finsweet/tsconfig": "^1.4.2",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/jquery": "^3.5.32",
     "@typescript-eslint/eslint-plugin": "^8.39.1",
     "@typescript-eslint/parser": "^8.39.1",
-    "@types/jquery": "^3.5.32",
     "browserslist": "^4.25.2",
     "browserslist-to-esbuild": "^2.1.1",
     "cross-env": "^10.0.0",
