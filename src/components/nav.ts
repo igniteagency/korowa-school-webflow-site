@@ -45,10 +45,7 @@ class NavMenu {
   }
 
   private emitOpenEvent(details: HTMLDetailsElement) {
-    const directDiv = details.querySelector(':scope > div');
-    if (directDiv) {
-      window.WF_IX.emit('onNavDetailsOpen', {}, directDiv);
-    }
+    window.WF_IX.emit('onNavDetailsOpen', {}, details);
   }
 }
 
