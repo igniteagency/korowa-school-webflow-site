@@ -12,7 +12,10 @@ gsap.registerPlugin(ScrollTrigger);
 
 window.Webflow = window.Webflow || [];
 window.Webflow?.push(() => {
-  window.WF_IX = window.Webflow?.require('ix3');
+  setTimeout(() => {
+    window.WF_IX = Webflow.require('ix3');
+    console.debug('Webflow IX3 globalised:', window.WF_IX);
+  }, 100);
 
   // Set current year on respective elements
   setCurrentYear();

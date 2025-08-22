@@ -20,6 +20,8 @@ interface Webflow_IX3 extends Webflow.require {
 }
 
 declare global {
+  Webflow: typeof Webflow;
+
   /** GSAP and sub-libs loading from Webflow CDN */
   gsap: GSAP;
   ScrollTrigger: typeof ScrollTrigger;
