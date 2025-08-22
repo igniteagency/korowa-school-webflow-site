@@ -1,5 +1,5 @@
 import { animatedDetailsAccordions } from '$components/accordions';
-import '$components/dialog';
+import Dialog from '$components/dialog';
 import NavMenu from '$components/nav';
 import { setCurrentYear } from '$utils/current-year';
 import '$utils/disable-webflow-scroll';
@@ -26,7 +26,8 @@ window.Webflow?.push(() => {
 });
 
 function initComponents() {
-  const navMenu = new NavMenu();
+  new NavMenu();
+  new Dialog();
 }
 
 function UIFunctions() {
