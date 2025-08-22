@@ -6,67 +6,89 @@
  *
  * TODO: make it work with the new `command` and `commandfor` libraries with fallback polyfill script
  */
-const DATA_ATTR = 'data-dialog-id';
-const DATA_ATTR_OPEN = 'data-dialog-open';
-const DATA_ATTR_CLOSE = 'data-dialog-close';
+class Dialog {
+  private readonly DATA_ATTR = 'data-dialog-id';
+  private readonly DATA_ATTR_OPEN = 'data-dialog-open';
+  private readonly DATA_ATTR_CLOSE = 'data-dialog-close';
+  private readonly DATA_COMPONENT_SELECTOR = `dialog[${this.DATA_ATTR}]`;
 
-const DATA_COMPONENT_SELECTOR = `dialog[${DATA_ATTR}]`;
+  constructor() {
+    this.init();
+    this.handleBackdropClick();
+  }
 
-window.Webflow ||= [];
-window.Webflow.push(() => {
-  dialogInit();
-  handleBackdropClick();
-});
+  private init() {
+    const dialogList = document.querySelectorAll<HTMLDialogElement>(this.DATA_COMPONENT_SELECTOR);
 
-function dialogInit() {
-  const dialogList = document.querySelectorAll<HTMLDialogElement>(DATA_COMPONENT_SELECTOR);
-
-  dialogList.forEach((dialogEl) => {
-    const id = dialogEl.getAttribute(DATA_ATTR);
-    if (!id) {
-      console.error('No ID found for dialog component', dialogEl);
-      return;
-    }
-
-    const openTriggersList = document.querySelectorAll(`[${DATA_ATTR_OPEN}="${id}"]`);
-    const closeTriggersList = dialogEl.querySelectorAll(`[${DATA_ATTR_CLOSE}="${id}"]`);
-
-    openTriggersList.forEach((openTriggerEl) => {
-      openTriggerEl.addEventListener('click', () => {
-        dialogEl.showModal();
-      });
-    });
-
-    closeTriggersList.forEach((closeTriggerEl) => {
-      closeTriggerEl.addEventListener('click', () => {
-        dialogEl.close();
-      });
-    });
-  });
-}
-
-/**
- * Handles backdrop click to close dialog
- * Only closes if the click was directly on the dialog element (backdrop) and not its children
- */
-function handleBackdropClick() {
-  const dialogEl = document.querySelectorAll<HTMLDialogElement>('dialog');
-  dialogEl.forEach((dialog) => {
-    dialog.addEventListener('click', (event) => {
-      const dialogEl = event.target as HTMLDialogElement;
-      if (!(dialogEl instanceof HTMLDialogElement)) return;
-
-      // Check if click was directly on the dialog element (backdrop)
-      const rect = dialogEl.getBoundingClientRect();
-      const clickedInDialog =
-        rect.top <= event.clientY &&
-        event.clientY <= rect.top + rect.height &&
-        rect.left <= event.clientX &&
-        event.clientX <= rect.left + rect.width;
-
-      if (clickedInDialog && event.target === dialogEl) {
-        dialogEl.close();
+    dialogList.forEach((dialogEl) => {
+      const id = dialogEl.getAttribute(this.DATA_ATTR);
+      if (!id) {
+        console.error('No ID found for dialog component', dialogEl);
+        return;
       }
+
+      const openTriggersList = document.querySelectorAll(`[${this.DATA_ATTR_OPEN}="${id}"]`);
+      const closeTriggersList = dialogEl.querySelectorAll(`[${this.DATA_ATTR_CLOSE}="${id}"]`);
+
+      openTriggersList.forEach((openTriggerEl) => {
+        openTriggerEl.addEventListener('click', () => {
+          this.openDialog(dialogEl);
+        });
+      });
+
+      closeTriggersList.forEach((closeTriggerEl) => {
+        closeTriggerEl.addEventListener('click', () => {
+          this.closeDialog(dialogEl);
+        });
+      });
     });
-  });
+  }
+
+  private openDialog(dialogEl: HTMLDialogElement) {
+    dialogEl.showModal();
+
+    // new custom event
+    const dialogOpenEvent = new CustomEvent('dialogOpen', {
+      detail: { dialogId: dialogEl.getAttribute(this.DATA_ATTR) },
+    });
+    dialogEl.dispatchEvent(dialogOpenEvent);
+  }
+
+  private closeDialog(dialogEl: HTMLDialogElement) {
+    dialogEl.close();
+
+    // new custom event
+    const dialogCloseEvent = new CustomEvent('dialogClose', {
+      detail: { dialogId: dialogEl.getAttribute(this.DATA_ATTR) },
+    });
+    dialogEl.dispatchEvent(dialogCloseEvent);
+  }
+
+  /**
+   * Handles backdrop click to close dialog
+   * Only closes if the click was directly on the dialog element (backdrop) and not its children
+   */
+  private handleBackdropClick() {
+    const dialogEl = document.querySelectorAll<HTMLDialogElement>('dialog');
+    dialogEl.forEach((dialog) => {
+      dialog.addEventListener('click', (event) => {
+        const dialogEl = event.target as HTMLDialogElement;
+        if (!(dialogEl instanceof HTMLDialogElement)) return;
+
+        // Check if click was directly on the dialog element (backdrop)
+        const rect = dialogEl.getBoundingClientRect();
+        const clickedInDialog =
+          rect.top <= event.clientY &&
+          event.clientY <= rect.top + rect.height &&
+          rect.left <= event.clientX &&
+          event.clientX <= rect.left + rect.width;
+
+        if (clickedInDialog && event.target === dialogEl) {
+          this.closeDialog(dialogEl);
+        }
+      });
+    });
+  }
 }
+
+export default Dialog;
