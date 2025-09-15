@@ -1,0 +1,1 @@
+"use strict";(()=>{function s(){let e=document.querySelector(".section_navbar");e&&ScrollTrigger.create({start:"top+=50",end:"max",onUpdate:i=>{i.direction===1?e.classList.add("is-hidden"):e.classList.remove("is-hidden")},onToggle:i=>{i.isActive?e.classList.add("is-fill"):e.classList.remove("is-fill")}})}})();
