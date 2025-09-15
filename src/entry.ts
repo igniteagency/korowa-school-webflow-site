@@ -87,3 +87,9 @@ window.loadScript = function (url, options, attr?: Record<string, string>): Prom
     document[opts.placement].appendChild(script);
   });
 };
+
+window.conditionalLoadScript = function (selector, url) {
+  if (document.querySelector(selector)) {
+    return window.loadScript(url);
+  }
+};

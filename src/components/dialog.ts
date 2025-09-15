@@ -41,6 +41,11 @@ class Dialog {
           this.closeDialog(dialogEl);
         });
       });
+
+      // Handle native close event (e.g. when user presses Esc key)
+      dialogEl.addEventListener('close', (event) => {
+        this.closeDialog(dialogEl, true);
+      });
     });
   }
 
@@ -54,8 +59,10 @@ class Dialog {
     dialogEl.dispatchEvent(dialogOpenEvent);
   }
 
-  private closeDialog(dialogEl: HTMLDialogElement) {
-    dialogEl.close();
+  private closeDialog(dialogEl: HTMLDialogElement, isAutoClosing = false) {
+    if (!isAutoClosing) {
+      dialogEl.close();
+    }
 
     // new custom event
     const dialogCloseEvent = new CustomEvent('dialogClose', {
