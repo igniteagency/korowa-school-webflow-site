@@ -42,6 +42,9 @@ function UIFunctions() {
   animatedDetailsAccordions();
 
   miniVideoCardLightbox();
+
+  // Counter Loader
+  window.conditionalLoadScript('[data-el="counter"]', 'components/counter.js');
 }
 
 function webflowOverrides() {
