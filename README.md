@@ -51,7 +51,7 @@ The project will process and output the files mentioned in the `files` const of 
    // Load an external library from a CDN, with options
    window.loadScript('https://cdn.jsdelivr.net/npm/some-lib@1.0.0/dist/index.js', {
      placement: 'head', // 'head' or 'body' (default: 'body')
-     scriptName: 'some-lib', // Optional: emits a custom event 'scriptLoaded:some-lib' when loaded
+     name: 'some-lib', // Optional: emits a custom event 'scriptLoaded:some-lib' when loaded
      defer: true, // (default: true)
      isModule: true // (default: true)
    });
@@ -62,7 +62,7 @@ The project will process and output the files mentioned in the `files` const of 
 
       ```js
       document.addEventListener('scriptLoaded:some-lib', (e) => {
-        // e.detail.url, e.detail.scriptName
+        // e.detail.url, e.detail.name
         // Your code here
       });
       ```
@@ -71,7 +71,7 @@ The project will process and output the files mentioned in the `files` const of 
      - `placement`: `'head' | 'body'` (default: `'body'`)
      - `defer`: `boolean` (default: `true`)
      - `isModule`: `boolean` (default: `true`)
-     - `scriptName`: `string` (optional, for custom event)
+     - `name`: `string` (optional, for custom event)
 
    **Do not use the old `window.JS_SCRIPTS` set or batch loading. Use `window.loadScript` for all dynamic script loading.**
 

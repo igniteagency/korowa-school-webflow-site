@@ -103,7 +103,7 @@ window.loadScript('global.js');
 // Load external library with options
 window.loadScript('https://cdn.jsdelivr.net/npm/library@1.0.0/dist/index.js', {
   placement: 'head',
-  scriptName: 'library-name'
+  name: 'library-name'
 });
 
 // Listen for script load events
