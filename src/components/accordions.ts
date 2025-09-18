@@ -1,61 +1,88 @@
-const ITEM_SELECTOR = 'details:not([data-accordion="false"])';
-const TOGGLE_SELECTOR = 'summary';
-const CONTENT_SELECTOR = 'summary + div';
+class Accordions {
+  private readonly ITEM_SELECTOR = 'details:not([data-accordion="false"])';
+  private readonly ANIMATION_DURATION = 0.3;
+  private readonly CLOSE_OTHER_ACCORDIONS = true;
 
-const ANIMATION_DURATION_IN_MS = 300;
-/**
- * If set to true, will close all other accordions when one is opened
- */
-const CLOSE_OTHER_ACCORDIONS = true;
+  constructor() {
+    this.init();
+  }
 
-export function animatedDetailsAccordions() {
-  const accordionsList = document.querySelectorAll<HTMLDetailsElement>(ITEM_SELECTOR);
-  accordionsList.forEach((accordion) => {
-    const accordionToggleEl = accordion.querySelector(TOGGLE_SELECTOR);
-    const accordionContentEl = accordion.querySelector(CONTENT_SELECTOR);
+  private init() {
+    const accordionsList = document.querySelectorAll<HTMLDetailsElement>(this.ITEM_SELECTOR);
+    accordionsList.forEach((accordion) => {
+      // Extend accordion with methods
+      accordion.openAccordion = () => {
+        if (!accordion.open) accordion.querySelector('summary')?.click();
+      };
 
-    if (!accordionToggleEl || !accordionContentEl) {
-      console.error('Accordion toggle or content not found', accordionToggleEl, accordionContentEl);
-      return;
-    }
+      accordion.closeAccordion = () => {
+        if (accordion.open) accordion.querySelector('summary')?.click();
+      };
 
-    accordionToggleEl.addEventListener('click', (event) => {
-      event.preventDefault();
-      const isOpening = !accordion.open;
+      const toggle = accordion.querySelector('summary');
+      const content = accordion.querySelector('summary + div');
 
-      if (isOpening) {
-        accordion.open = true;
-        const height = accordionContentEl.scrollHeight;
-        accordionContentEl.style.height = '0px';
-        accordionContentEl.animate([{ height: '0px' }, { height: `${height}px` }], {
-          duration: ANIMATION_DURATION_IN_MS,
-          fill: 'forwards',
-        }).onfinish = () => {
-          accordionContentEl.style.height = 'auto';
-        };
+      if (!toggle || !content) return;
 
-        if (CLOSE_OTHER_ACCORDIONS) {
-          accordionsList.forEach((otherAccordion) => {
-            if (otherAccordion !== accordion && otherAccordion.open) {
-              otherAccordion.querySelector(TOGGLE_SELECTOR)?.click();
-            }
-          });
+      toggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        const isOpening = !accordion.open;
+
+        if (isOpening) {
+          this.openAccordionInternal(accordion, content, accordionsList);
+        } else {
+          this.closeAccordionInternal(accordion, content);
         }
-      } else {
-        const height = accordionContentEl.scrollHeight;
-        const animation = accordionContentEl.animate(
-          [{ height: `${height}px` }, { height: '0px' }],
-          {
-            duration: ANIMATION_DURATION_IN_MS,
-            fill: 'forwards',
-          }
-        );
-
-        animation.onfinish = () => {
-          accordion.open = false;
-          accordionContentEl.style.height = '';
-        };
-      }
+      });
     });
-  });
+  }
+
+  private openAccordionInternal(
+    accordion: HTMLDetailsElement,
+    content: HTMLElement,
+    accordionsList: NodeListOf<HTMLDetailsElement>
+  ) {
+    accordion.open = true;
+    const height = content.scrollHeight;
+    gsap.fromTo(
+      content,
+      { height: 0 },
+      {
+        height,
+        duration: this.ANIMATION_DURATION,
+        onComplete: () => {
+          gsap.set(content, { height: 'auto' });
+        },
+      }
+    );
+
+    accordion.dispatchEvent(new CustomEvent('onAccordionOpen', { detail: { accordion } }));
+
+    if (this.CLOSE_OTHER_ACCORDIONS) {
+      accordionsList.forEach((other) => {
+        if (other !== accordion && other.open) {
+          other.querySelector('summary')?.click();
+        }
+      });
+    }
+  }
+
+  private closeAccordionInternal(accordion: HTMLDetailsElement, content: HTMLElement) {
+    const height = content.scrollHeight;
+    gsap.fromTo(
+      content,
+      { height },
+      {
+        height: 0,
+        duration: this.ANIMATION_DURATION,
+        onComplete: () => {
+          accordion.open = false;
+          gsap.set(content, { height: '' });
+          accordion.dispatchEvent(new CustomEvent('onAccordionClose'));
+        },
+      }
+    );
+  }
 }
+
+export default Accordions;

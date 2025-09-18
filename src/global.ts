@@ -1,4 +1,4 @@
-import { animatedDetailsAccordions } from '$components/accordions';
+import Accordions from '$components/accordions';
 import Dialog from '$components/dialog';
 import { miniVideoCardLightbox } from '$components/mini-video-card';
 import NavMenu from '$components/nav/menu';
@@ -39,7 +39,7 @@ function UIFunctions() {
   navbarScrollToggle();
 
   duplicateMarqueeList();
-  animatedDetailsAccordions();
+  new Accordions();
 
   miniVideoCardLightbox();
 

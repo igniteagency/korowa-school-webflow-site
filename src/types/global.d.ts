@@ -85,6 +85,11 @@ declare global {
     querySelector<E extends HTMLElement = HTMLElement>(selectors: string): E | null;
     querySelectorAll<E extends HTMLElement = HTMLElement>(selectors: string): NodeListOf<E>;
   }
+
+  interface HTMLDetailsElement {
+    openAccordion(): void;
+    closeAccordion(): void;
+  }
 }
 
 export {};
