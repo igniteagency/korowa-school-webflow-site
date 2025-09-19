@@ -2,6 +2,7 @@
  * General Slider component
  * To create standalone sliders on the page, add swiper script and this component script to the page
  */
+import type { CardsEffectOptions, SwiperOptions } from 'swiper/types';
 
 class Slider {
   COMPONENT_SELECTOR = '[data-slider-el="component"]';
@@ -21,19 +22,31 @@ class Slider {
   }
 
   initSliders() {
-    this.swiperComponents.forEach((swiperComponent) => {
+    this.swiperComponents.forEach(async (swiperComponent) => {
       const swiperEl = swiperComponent.querySelector('.swiper');
       if (!swiperEl) {
         console.error('`.swiper` element not found', swiperComponent);
         return;
       }
 
+      const slideCount = swiperEl.querySelectorAll('.swiper-slide').length;
+      const slideWidth = swiperComponent.querySelector('.swiper-slide')?.clientWidth || 0;
+
+      await this.loadCSS('https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css');
+
       const navPrevButtonEl = swiperComponent.querySelector(this.NAV_PREV_BUTTON_SELECTOR);
       const navNextButtonEl = swiperComponent.querySelector(this.NAV_NEXT_BUTTON_SELECTOR);
       const paginationEl = swiperComponent.querySelector(this.PAGINATION_SELECTOR);
 
-      const loop = swiperComponent.getAttribute(this.LOOP_ATTR) === 'true' ? true : false;
+      let loop = swiperComponent.getAttribute(this.LOOP_ATTR) === 'true' ? true : false;
       const effect = swiperComponent.getAttribute(this.EFFECT_ATTR) || 'slide';
+
+      const isCardsEffect = effect === 'cards';
+      if (isCardsEffect) {
+        // await this.loadCSS(
+        //   'https://cdn.jsdelivr.net/npm/swiper@12.0.2/modules/effect-cards.min.css'
+        // );
+      }
 
       const navigationConfig =
         navPrevButtonEl && navNextButtonEl
@@ -56,21 +69,30 @@ class Slider {
           }
         : false;
 
-      let cardsEffectConfig = {};
-      if (effect === 'cards') {
-        const cardWidth = swiperComponent.querySelector('.swiper-slide')?.clientWidth || 0;
-        const perSlideOffset = cardWidth * 0.7;
+      let slidesPerView: number | 'auto' = 'auto';
+      let spaceBetween = 24;
+
+      let cardsEffectConfig: SwiperOptions['cardsEffect'] = undefined;
+      if (isCardsEffect) {
+        const perSlideOffset = slideWidth * 0.45;
 
         cardsEffectConfig = {
           perSlideOffset: perSlideOffset,
         };
+
+        slidesPerView = 3;
+
+        if (slideCount <= 6) {
+          loop = false;
+        }
       }
 
       this.swiper = new Swiper(swiperEl, {
         loop: loop,
         effect: effect,
-        spaceBetween: 24,
-        slidesPerView: 'auto',
+        cardsEffect: cardsEffectConfig,
+        slidesPerView: slidesPerView,
+        spaceBetween: spaceBetween,
         navigation: navigationConfig,
         pagination: paginationConfig,
         slideActiveClass: 'is-active',
@@ -83,23 +105,27 @@ class Slider {
     });
   }
 
-  loadStyle(effect: string) {
-    if ('cards' === effect) {
-      this.loadCSS('https://cdn.jsdelivr.net/npm/swiper@12.0.2/modules/effect-cards.min.css');
-    }
-  }
-
-  loadCSS(href: string) {
+  loadCSS(href: string): Promise<void> {
     if (document.querySelector(`link[href="${href}"]`)) {
-      return;
+      return Promise.resolve();
     }
 
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = href;
-    document.head.appendChild(link);
+    return new Promise((resolve, reject) => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+
+      link.onload = () => resolve();
+      link.onerror = () => reject(new Error(`Failed to load CSS: ${href}`));
+
+      document.head.appendChild(link);
+    });
   }
 }
+
+window.loadScript('https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js', {
+  name: 'swiper',
+});
 
 document.addEventListener('scriptLoaded:swiper', () => {
   new Slider();
