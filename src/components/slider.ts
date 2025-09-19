@@ -69,30 +69,34 @@ class Slider {
           }
         : false;
 
-      let slidesPerView: number | 'auto' = 'auto';
-      let spaceBetween = 24;
+      let extraConfig: Partial<SwiperOptions> = {};
 
       let cardsEffectConfig: SwiperOptions['cardsEffect'] = undefined;
       if (isCardsEffect) {
-        const perSlideOffset = slideWidth * 0.45;
+        const perSlideOffset = slideWidth * 0.12;
 
         cardsEffectConfig = {
           perSlideOffset: perSlideOffset,
         };
 
-        slidesPerView = 3;
-
-        if (slideCount <= 6) {
+        if (slideCount <= 8) {
           loop = false;
         }
+
+        extraConfig = {
+          cardsEffect: cardsEffectConfig,
+          slidesPerGroup: 1,
+          loopAddBlankSlides: true,
+        };
       }
+
+      console.debug(extraConfig);
 
       this.swiper = new Swiper(swiperEl, {
         loop: loop,
         effect: effect,
-        cardsEffect: cardsEffectConfig,
-        slidesPerView: slidesPerView,
-        spaceBetween: spaceBetween,
+        slidesPerView: 'auto',
+        spaceBetween: 24,
         navigation: navigationConfig,
         pagination: paginationConfig,
         slideActiveClass: 'is-active',
@@ -101,6 +105,7 @@ class Slider {
         a11y: {
           enabled: true,
         },
+        ...extraConfig,
       });
     });
   }
