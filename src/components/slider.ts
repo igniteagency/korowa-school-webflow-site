@@ -87,10 +87,9 @@ class Slider {
           cardsEffect: cardsEffectConfig,
           slidesPerGroup: 1,
           loopAddBlankSlides: true,
+          centeredSlides: true,
         };
       }
-
-      console.debug(extraConfig);
 
       this.swiper = new Swiper(swiperEl, {
         loop: loop,
