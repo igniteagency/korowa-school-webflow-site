@@ -42,11 +42,6 @@ class Slider {
       const effect = swiperComponent.getAttribute(this.EFFECT_ATTR) || 'slide';
 
       const isCardsEffect = effect === 'cards';
-      if (isCardsEffect) {
-        // await this.loadCSS(
-        //   'https://cdn.jsdelivr.net/npm/swiper@12.0.2/modules/effect-cards.min.css'
-        // );
-      }
 
       const navigationConfig =
         navPrevButtonEl && navNextButtonEl
@@ -72,8 +67,9 @@ class Slider {
       let extraConfig: Partial<SwiperOptions> = {};
 
       let cardsEffectConfig: SwiperOptions['cardsEffect'] = undefined;
+
       if (isCardsEffect) {
-        const perSlideOffset = slideWidth * 0.12;
+        const perSlideOffset = slideWidth * 0.2;
 
         cardsEffectConfig = {
           perSlideOffset: perSlideOffset,
@@ -87,7 +83,6 @@ class Slider {
           cardsEffect: cardsEffectConfig,
           slidesPerGroup: 1,
           loopAddBlankSlides: true,
-          centeredSlides: true,
         };
       }
 
