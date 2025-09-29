@@ -1,0 +1,1 @@
+"use strict";(()=>{function o(){window.location.hostname.includes("webflow.io")&&window.loadScript("https://www.bugherd.com/sidebarv2.js?apikey=8dve1mmxxsxynfkbvgaegq").then(()=>{console.log("BugHerd script loaded successfully")}).catch(e=>{console.error("Failed to load BugHerd script:",e)})}window.addEventListener("load",()=>{o()});})();
