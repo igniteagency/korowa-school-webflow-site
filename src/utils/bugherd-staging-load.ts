@@ -2,16 +2,12 @@
  * Injects the BugHerd script only on webflow.io staging domains
  */
 function initBugHerd() {
-  const siteAPIKey = '';
+  const siteAPIKey = '8dve1mmxxsxynfkbvgaegq';
 
   // Only load on webflow.io domains
   if (window.location.hostname.includes('webflow.io')) {
     window
-      .loadExternalScript(
-        `https://www.bugherd.com/sidebarv2.js?apikey=${siteAPIKey}`,
-        'body',
-        false
-      )
+      .loadScript(`https://www.bugherd.com/sidebarv2.js?apikey=${siteAPIKey}`)
       .then(() => {
         console.log('BugHerd script loaded successfully');
       })
