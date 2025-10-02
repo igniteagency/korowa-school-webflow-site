@@ -49,12 +49,14 @@ class ConfettiPop {
   }
 
   private launchConfetti() {
-    console.debug('launching confetti');
+    window.IS_DEBUG_MODE && console.debug('launching confetti');
+
     confetti({
       particleCount: 200,
       spread: 180,
       origin: { y: 0.6 },
       disableForReducedMotion: true,
+      colors: ['#b21e3b', '#31000a', '#293762', '#5ac5c9', '#b487ce', '#8aa1ff', '#f05682'],
     });
   }
 }
