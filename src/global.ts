@@ -9,6 +9,7 @@ import { disableWebflowAnchorSmoothScroll } from '$utils/disable-webflow-scroll'
 import handleExternalLinks from '$utils/external-link';
 import addMainElementId from '$utils/main-element-id';
 import { duplicateMarqueeList } from '$utils/marquee-list';
+import { addSafariBrowserClass } from '$utils/safari-detection';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -28,6 +29,8 @@ window.Webflow?.push(() => {
 
   UIFunctions();
   webflowOverrides();
+
+  miscUtils();
 
   loadScrollTimelineCSSPolyfill();
 });
@@ -51,6 +54,10 @@ function UIFunctions() {
 
 function webflowOverrides() {
   disableWebflowAnchorSmoothScroll();
+}
+
+function miscUtils() {
+  addSafariBrowserClass();
 }
 
 function loadScrollTimelineCSSPolyfill() {
