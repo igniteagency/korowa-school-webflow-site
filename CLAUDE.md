@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+While working with this project, use MCP connections for Webflow and Figma. The Webflow project to be used is "Korowa Girls Anglical School".
+
 ## Project Overview
 
 This is a Webflow JavaScript starter project where JavaScript/TypeScript is authored and managed separately from HTML/CSS (which remain in Webflow). Scripts are not bundled into a single file - each script is loaded individually per page as needed, with only `src/entry.ts` (built as `entry.js`) loaded globally. The system uses esbuild for building and serves scripts from either localhost during development or jsDelivr CDN in production.
