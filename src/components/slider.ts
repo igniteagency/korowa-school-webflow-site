@@ -32,7 +32,7 @@ class Slider {
       const slideCount = swiperEl.querySelectorAll('.swiper-slide').length;
       const slideWidth = swiperComponent.querySelector('.swiper-slide')?.clientWidth || 0;
 
-      await this.loadCSS('https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css');
+      await window.loadCSS('https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css');
 
       const navPrevButtonEl = swiperComponent.querySelector(this.NAV_PREV_BUTTON_SELECTOR);
       const navNextButtonEl = swiperComponent.querySelector(this.NAV_NEXT_BUTTON_SELECTOR);
@@ -101,23 +101,6 @@ class Slider {
         },
         ...extraConfig,
       });
-    });
-  }
-
-  loadCSS(href: string): Promise<void> {
-    if (document.querySelector(`link[href="${href}"]`)) {
-      return Promise.resolve();
-    }
-
-    return new Promise((resolve, reject) => {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = href;
-
-      link.onload = () => resolve();
-      link.onerror = () => reject(new Error(`Failed to load CSS: ${href}`));
-
-      document.head.appendChild(link);
     });
   }
 }

@@ -63,6 +63,8 @@ declare global {
       attr?: Record<string, string>
     ) => Promise<void>;
 
+    loadCSS: (url: string) => Promise<void>;
+
     /**
      * Conditionally load a script if a selector is found on the page
      * @param selector CSS selector to check for existence
