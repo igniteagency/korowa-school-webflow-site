@@ -15,6 +15,7 @@ const files = [
   './src/global.ts',
   './src/components/**/*.ts',
   './src/pages/**/*.ts',
+  './src/utils/bugherd-staging-load.ts',
 ];
 
 const buildSettings = {

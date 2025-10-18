@@ -19,5 +19,6 @@ export function navbarScrollToggle() {
         navbar.classList.remove('is-fill');
       }
     },
+    invalidateOnRefresh: true,
   });
 }

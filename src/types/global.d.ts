@@ -63,6 +63,8 @@ declare global {
       attr?: Record<string, string>
     ) => Promise<void>;
 
+    loadCSS: (url: string) => Promise<void>;
+
     /**
      * Conditionally load a script if a selector is found on the page
      * @param selector CSS selector to check for existence
@@ -84,6 +86,11 @@ declare global {
   interface ParentNode {
     querySelector<E extends HTMLElement = HTMLElement>(selectors: string): E | null;
     querySelectorAll<E extends HTMLElement = HTMLElement>(selectors: string): NodeListOf<E>;
+  }
+
+  interface HTMLDetailsElement {
+    openAccordion(): void;
+    closeAccordion(): void;
   }
 }
 

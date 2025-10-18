@@ -1,4 +1,4 @@
-import { animatedDetailsAccordions } from '$components/accordions';
+import Accordions from '$components/accordions';
 import Dialog from '$components/dialog';
 import { miniVideoCardLightbox } from '$components/mini-video-card';
 import NavMenu from '$components/nav/menu';
@@ -9,6 +9,7 @@ import { disableWebflowAnchorSmoothScroll } from '$utils/disable-webflow-scroll'
 import handleExternalLinks from '$utils/external-link';
 import addMainElementId from '$utils/main-element-id';
 import { duplicateMarqueeList } from '$utils/marquee-list';
+import { addSafariBrowserClass } from '$utils/safari-detection';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -28,6 +29,10 @@ window.Webflow?.push(() => {
 
   UIFunctions();
   webflowOverrides();
+
+  miscUtils();
+
+  loadScrollTimelineCSSPolyfill();
 });
 
 function initComponents() {
@@ -39,7 +44,7 @@ function UIFunctions() {
   navbarScrollToggle();
 
   duplicateMarqueeList();
-  animatedDetailsAccordions();
+  new Accordions();
 
   miniVideoCardLightbox();
 
@@ -49,4 +54,12 @@ function UIFunctions() {
 
 function webflowOverrides() {
   disableWebflowAnchorSmoothScroll();
+}
+
+function miscUtils() {
+  addSafariBrowserClass();
+}
+
+function loadScrollTimelineCSSPolyfill() {
+  window.loadScript('https://flackr.github.io/scroll-timeline/dist/scroll-timeline.js');
 }

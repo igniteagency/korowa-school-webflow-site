@@ -2,8 +2,8 @@ import { CountUp } from 'countup.js';
 
 const calculateDuration = (value: number): number => {
   const absValue = Math.abs(value);
-  const baseDuration = Math.log10(absValue + 1) * 0.5 + 0.5;
-  return Math.min(baseDuration, 3);
+  const baseDuration = Math.log10(absValue + 1) * 0.8 + 1;
+  return Math.min(baseDuration, 5);
 };
 
 const initCounters = (): void => {
@@ -14,9 +14,14 @@ const initCounters = (): void => {
     const endValue = parseFloat(textContent.replace(/[^\d.-]/g, '')) || 0;
     const duration = calculateDuration(Math.abs(endValue));
 
+    const decimalPlaces = textContent.includes('.')
+      ? textContent.split('.')[1].replace(/[^\d]/g, '').length
+      : 0;
+
     const countUp = new CountUp(element, endValue, {
       startVal: 0,
       duration,
+      decimalPlaces,
       enableScrollSpy: true,
     });
 

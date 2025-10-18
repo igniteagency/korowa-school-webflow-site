@@ -88,6 +88,23 @@ window.loadScript = function (url, options, attr?: Record<string, string>): Prom
   });
 };
 
+window.loadCSS = function (href: string): Promise<void> {
+  if (document.querySelector(`link[href="${href}"]`)) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve, reject) => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+
+    link.onload = () => resolve();
+    link.onerror = () => reject(new Error(`Failed to load CSS: ${href}`));
+
+    document.head.appendChild(link);
+  });
+};
+
 window.conditionalLoadScript = function (selector, url) {
   if (document.querySelector(selector)) {
     return window.loadScript(url);
