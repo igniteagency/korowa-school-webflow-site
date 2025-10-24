@@ -69,10 +69,8 @@ class Slider {
       let cardsEffectConfig: SwiperOptions['cardsEffect'] = undefined;
 
       if (isCardsEffect) {
-        const perSlideOffset = slideWidth * 0.2;
-
         cardsEffectConfig = {
-          perSlideOffset: perSlideOffset,
+          perSlideOffset: slideWidth * 0.2,
         };
 
         if (slideCount <= 8) {
@@ -81,7 +79,6 @@ class Slider {
 
         extraConfig = {
           cardsEffect: cardsEffectConfig,
-          slidesPerGroup: 1,
           loopAddBlankSlides: true,
         };
       }
