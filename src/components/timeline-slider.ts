@@ -67,6 +67,8 @@ class TimelineSlider {
         slidePrevClass: 'is-previous',
         slideNextClass: 'is-next',
         watchSlidesProgress: true,
+        longSwipes: false,
+        touchRatio: 0.4, // limit swipe speed
         a11y: {
           enabled: true,
         },
@@ -141,7 +143,6 @@ class TimelineSlider {
 
       // Rotation: tangent to the circle at this point
       // angle = arcsin(x / radius), convert to degrees
-      // Flip the sign to match your design
       const angleRad = Math.asin(x / radius);
       const rotationDeg = (angleRad * 180) / Math.PI;
 
