@@ -9,14 +9,11 @@ class TimelineSlider {
   COMPONENT_SELECTOR = '[data-timeline-slider-el="component"]';
   NAV_PREV_BUTTON_SELECTOR = '[data-slider-el="nav-prev"]';
   NAV_NEXT_BUTTON_SELECTOR = '[data-slider-el="nav-next"]';
-
-  // Curve configuration attributes
-  CURVE_INTENSITY_ATTR = 'data-timeline-curve-intensity'; // Default: 80
-  CURVE_WIDTH_ATTR = 'data-timeline-curve-width'; // Default: 200
-  ROTATION_ENABLED_ATTR = 'data-timeline-rotation'; // Default: true
+  CARD_SELECTOR = '[data-timeline-slider-el="card"]';
 
   swiperComponents: NodeListOf<HTMLElement> | [];
-  swiper: Swiper | null;
+  swiper!: Swiper;
+  rafId: number | null = null;
 
   constructor() {
     this.swiperComponents = document.querySelectorAll(this.COMPONENT_SELECTOR);
@@ -25,7 +22,7 @@ class TimelineSlider {
 
   initSliders() {
     this.swiperComponents.forEach(async (swiperComponent) => {
-      const swiperEl = swiperComponent;
+      const swiperEl = swiperComponent.querySelector('.swiper');
       if (!swiperEl) {
         console.error('`.swiper` element not found', swiperComponent);
         return;
@@ -36,13 +33,6 @@ class TimelineSlider {
       const navPrevButtonEl = swiperComponent.querySelector(this.NAV_PREV_BUTTON_SELECTOR);
       const navNextButtonEl = swiperComponent.querySelector(this.NAV_NEXT_BUTTON_SELECTOR);
 
-      // Get curve configuration from data attributes
-      const curveIntensity = parseInt(
-        swiperComponent.getAttribute(this.CURVE_INTENSITY_ATTR) || '80'
-      );
-      const curveWidth = parseInt(swiperComponent.getAttribute(this.CURVE_WIDTH_ATTR) || '200');
-      const rotationEnabled = swiperComponent.getAttribute(this.ROTATION_ENABLED_ATTR) !== 'false';
-
       const navigationConfig =
         navPrevButtonEl && navNextButtonEl
           ? {
@@ -52,43 +42,49 @@ class TimelineSlider {
             }
           : false;
 
+      const slideCount = swiperEl.querySelectorAll('.swiper-slide').length;
+
+      // Triple the slides for efficient looping if 8 or less slides
+      const slidesWrapper = swiperEl.querySelector('.swiper-wrapper');
+      if (slidesWrapper) {
+        const originalSlides = slidesWrapper.innerHTML;
+        if (slideCount <= 5) {
+          slidesWrapper.innerHTML = originalSlides.repeat(3);
+        } else if (slideCount <= 8) {
+          slidesWrapper.innerHTML = originalSlides.repeat(2);
+        }
+      }
+
       const swiperConfig: SwiperOptions = {
         slidesPerView: 'auto',
         centeredSlides: true,
-        spaceBetween: 60,
-        loop: true,
+        spaceBetween: 0,
+        loop: slideCount > 1,
         speed: 800,
         grabCursor: true,
         navigation: navigationConfig,
         slideActiveClass: 'is-active',
         slidePrevClass: 'is-previous',
         slideNextClass: 'is-next',
+        watchSlidesProgress: true,
+        longSwipes: false,
+        touchRatio: 0.4, // limit swipe speed
         a11y: {
           enabled: true,
         },
-        breakpoints: {
-          320: {
-            spaceBetween: 30,
-          },
-          768: {
-            spaceBetween: 40,
-          },
-          1024: {
-            spaceBetween: 60,
-          },
-        },
         on: {
           init: (swiper) => {
-            this.updateSlidePositions(swiper, curveIntensity, curveWidth, rotationEnabled);
+            this.updateSlidePositions(swiper);
+          },
+          transitionStart: (swiper) => {
+            this.startRAF(swiper);
           },
           progress: (swiper) => {
-            this.updateSlidePositions(swiper, curveIntensity, curveWidth, rotationEnabled);
+            this.updateSlidePositions(swiper);
           },
-          setTransition: (swiper, transition) => {
-            swiper.slides.forEach((slide) => {
-              const slideEl = slide as HTMLElement;
-              slideEl.style.transition = `${transition}ms cubic-bezier(0.4, 0, 0.2, 1)`;
-            });
+          transitionEnd: (swiper) => {
+            this.stopRAF();
+            this.updateSlidePositions(swiper);
           },
         },
       };
@@ -97,57 +93,61 @@ class TimelineSlider {
     });
   }
 
+  startRAF(swiper: any) {
+    // Cancel any existing RAF loop
+    this.stopRAF();
+
+    // Start new RAF loop
+    const animate = () => {
+      this.updateSlidePositions(swiper);
+      this.rafId = requestAnimationFrame(animate);
+    };
+
+    this.rafId = requestAnimationFrame(animate);
+  }
+
+  stopRAF() {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+  }
+
   /**
-   * Updates slide positions along an elliptical curve
+   * Updates slide positions along a circular curve
    * @param swiper - Swiper instance
-   * @param verticalRadius - Vertical radius of the ellipse (curve height)
-   * @param horizontalRadius - Horizontal radius of the ellipse (curve width)
-   * @param enableRotation - Whether to rotate slides along the curve
    */
-  updateSlidePositions(
-    swiper: Swiper,
-    verticalRadius: number,
-    horizontalRadius: number,
-    enableRotation: boolean
-  ) {
-    swiper.slides.forEach((slide, index) => {
+  updateSlidePositions(swiper: any) {
+    const { slides } = swiper;
+
+    // Circle geometry: 350vw diameter = 175vw radius
+    const radius = window.innerWidth * 1.75;
+    const centerX = window.innerWidth * 0.5;
+
+    slides.forEach((slide: any) => {
       const slideEl = slide as HTMLElement;
-      const slideProgress = (slideEl as any).progress || 0;
+      const cardEl = slideEl.querySelector(this.CARD_SELECTOR) as HTMLElement;
+      if (!cardEl) return;
 
-      // Elliptical path parameters
-      const a = horizontalRadius; // Horizontal radius
-      const b = verticalRadius; // Vertical radius
+      const rect = slideEl.getBoundingClientRect();
+      const slideCenterX = rect.left + rect.width * 0.5;
 
-      // Calculate position on ellipse
-      // Angle spread controls how much the slides curve (0.4 = moderate curve)
-      const angle = slideProgress * 0.4;
-      const x = a * Math.sin(angle);
-      const y = -b * Math.cos(angle) + b; // Offset to bottom of curve
+      // Horizontal distance from viewport center
+      const x = slideCenterX - centerX;
 
-      // Rotation follows the tangent of the ellipse
-      let rotation = 0;
-      if (enableRotation) {
-        rotation = Math.atan2(a * Math.cos(angle), b * Math.sin(angle)) * (180 / Math.PI) - 90; // -90 to adjust orientation
-      }
+      // Circle equation: y = radius - sqrt(radius² - x²)
+      // This gives us the vertical drop from the top of the circle
+      const radiusSquared = radius * radius;
+      const xSquared = x * x;
+      const translateY = radius - Math.sqrt(radiusSquared - xSquared);
 
-      // Apply transforms for curve positioning
-      slideEl.style.transform = `
-        translate3d(${x}px, ${y}px, 0)
-        rotate(${rotation}deg)
-      `;
+      // Rotation: tangent to the circle at this point
+      // angle = arcsin(x / radius), convert to degrees
+      const angleRad = Math.asin(x / radius);
+      const rotationDeg = (angleRad * 180) / Math.PI;
 
-      // Scale effect for depth perception
-      const scale = 1 - Math.abs(slideProgress) * 0.15;
-      const opacity = 1 - Math.abs(slideProgress) * 0.3;
-
-      slideEl.style.opacity = Math.max(opacity, 0.5).toString();
-
-      // Apply scale to inner card if it exists
-      const cardEl = slideEl.querySelector('[data-timeline-slider-el="card"]') as HTMLElement;
-      if (cardEl) {
-        cardEl.style.transform = `scale(${Math.max(scale, 0.85)})`;
-        cardEl.style.transition = 'transform 800ms cubic-bezier(0.4, 0, 0.2, 1)';
-      }
+      // Apply transform (disable transitions for immediate updates)
+      cardEl.style.transform = `translate3d(0, ${translateY}px, 0) rotate(${rotationDeg}deg)`;
     });
   }
 }
