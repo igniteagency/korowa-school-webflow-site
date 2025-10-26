@@ -46,7 +46,7 @@ class GallerySlider {
         draggable: true,
         center: true,
         curve: {
-          yPercent: 15,
+          yPercent: 35,
           rotation: 12,
         },
         onChange: (element, index) => {
