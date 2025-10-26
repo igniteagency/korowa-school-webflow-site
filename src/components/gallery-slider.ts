@@ -45,6 +45,10 @@ class GallerySlider {
         paused: true,
         draggable: true,
         center: true,
+        curve: {
+          yPercent: 15,
+          rotation: 12,
+        },
         onChange: (element, index) => {
           // when the active element changes, this function gets called.
           activeElement && activeElement.classList.remove(this.ACTIVE_CLASSNAME);
@@ -61,7 +65,9 @@ window.loadScript('https://cdn.prod.website-files.com/gsap/3.13.0/gsap.min.js', 
   name: 'gsap',
 });
 
-document.addEventListener('scriptLoaded:gsap', () => {
+window.Webflow ||= [];
+window.Webflow?.push(() => {
+  // document.addEventListener('scriptLoaded:gsap', () => {
   // Load GSAP plugins
   Promise.all([
     window.loadScript('https://cdn.prod.website-files.com/gsap/3.13.0/MotionPathPlugin.min.js', {

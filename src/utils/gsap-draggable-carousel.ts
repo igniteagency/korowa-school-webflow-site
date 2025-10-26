@@ -8,7 +8,7 @@ This helper function makes a group of elements animate along the x-axis in a sea
 Features:
  - Uses xPercent so that even if the widths change (like if the window gets resized), it should still work in most cases.
  - When each item animates to the left or right enough, it will loop back to the other side
- - Optionally pass in a config object with values like draggable: true, center: true, speed (default: 1, which travels at roughly 100 pixels per second), paused (boolean), repeat, reversed, and paddingRight.
+ - Optionally pass in a config object with values like draggable: true, center: true, speed (default: 1, which travels at roughly 100 pixels per second), paused (boolean), repeat, reversed, paddingRight, and curve (optional object with { yPercent: number, rotation: number, width?: number } to simulate curved path effect - width defaults to viewport width, items follow curve only when in viewport).
  - The returned timeline will have the following methods added to it:
    - next() - animates to the next element using a timeline.tweenTo() which it returns. You can pass in a vars object to control duration, easing, etc.
    - previous() - animates to the previous element using a timeline.tweenTo() which it returns. You can pass in a vars object to control duration, easing, etc.
@@ -109,6 +109,50 @@ export function horizontalLoop(items, config) {
         }
         return index;
       },
+      updateCurvePositions = () => {
+        if (!config.curve) return;
+
+        const curveWidth = config.curve.width || container.offsetWidth;
+        const maxYPercent = config.curve.yPercent || 0;
+        const maxRotation = config.curve.rotation || 0;
+        const containerBbox = container.getBoundingClientRect();
+        const viewportCenter = containerBbox.left + containerBbox.width / 2;
+
+        items.forEach((item) => {
+          const bbox = item.getBoundingClientRect();
+          const itemCenter = bbox.left + bbox.width / 2;
+          const distanceFromCenter = itemCenter - viewportCenter;
+
+          // Normalize position based on curve width
+          // Use 0.6 multiplier so curve extends beyond viewport edges for smoother falloff
+          const normalizedPosition = Math.max(
+            -1,
+            Math.min(1, (distanceFromCenter / (curveWidth / 2)) * 0.6)
+          );
+
+          // Apply inverse parabolic curve for y (0 at center, max at edges)
+          const yOffset = maxYPercent * Math.pow(normalizedPosition, 2);
+
+          // Apply rotation (opposite on each side, linear)
+          const rotationValue = maxRotation * normalizedPosition;
+
+          // Set transform origin based on rotation direction
+          // Rotating right (positive rotation) -> pivot from bottom left
+          // Rotating left (negative rotation) -> pivot from bottom right
+          const transformOrigin =
+            rotationValue > 0
+              ? 'left bottom'
+              : rotationValue < 0
+                ? 'right bottom'
+                : 'center bottom';
+
+          gsap.set(item, {
+            yPercent: yOffset,
+            rotation: rotationValue,
+            transformOrigin: transformOrigin,
+          });
+        });
+      },
       populateTimeline = () => {
         let i, item, curX, distanceToStart, distanceToLoop;
         tl.clear();
@@ -157,6 +201,32 @@ export function horizontalLoop(items, config) {
     populateTimeline();
     populateOffsets();
     window.addEventListener('resize', onResize);
+
+    // Setup curve effect ticker control
+    let curveTickerActive = false;
+    const startCurveTicker = () => {
+      if (config.curve && !curveTickerActive) {
+        curveTickerActive = true;
+        gsap.ticker.add(updateCurvePositions);
+      }
+    };
+    const stopCurveTicker = () => {
+      if (config.curve && curveTickerActive) {
+        curveTickerActive = false;
+        gsap.ticker.remove(updateCurvePositions);
+        updateCurvePositions(); // Final update
+      }
+    };
+
+    // Setup curve effect if configured
+    if (config.curve) {
+      updateCurvePositions(); // Initial positioning
+
+      // Start/stop ticker based on timeline play state
+      tl.eventCallback('onStart', startCurveTicker);
+      tl.eventCallback('onComplete', stopCurveTicker);
+      tl.eventCallback('onInterrupt', stopCurveTicker);
+    }
     function toIndex(index, vars) {
       vars = vars || {};
       Math.abs(index - curIndex) > length / 2 && (index += index > curIndex ? -length : length); // always go in the shortest direction
@@ -221,6 +291,7 @@ export function horizontalLoop(items, config) {
           ratio = 1 / totalWidth;
           initChangeX = startProgress / -ratio - x;
           gsap.set(proxy, { x: startProgress / -ratio });
+          config.curve && startCurveTicker(); // Start ticker when dragging
         },
         onDrag: align,
         onThrowUpdate: align,
@@ -242,10 +313,16 @@ export function horizontalLoop(items, config) {
         },
         onRelease() {
           syncIndex();
-          draggable.isThrowing && (indexIsDirty = true);
+          if (draggable.isThrowing) {
+            indexIsDirty = true;
+          } else {
+            // If not throwing (just a click/drag without inertia), stop the ticker
+            stopCurveTicker();
+          }
         },
         onThrowComplete: () => {
           syncIndex();
+          stopCurveTicker(); // Stop ticker when throw completes
           wasPlaying && tl.play();
         },
       })[0];
@@ -255,7 +332,10 @@ export function horizontalLoop(items, config) {
     lastIndex = curIndex;
     onChange && onChange(items[curIndex], curIndex);
     timeline = tl;
-    return () => window.removeEventListener('resize', onResize); // cleanup
+    return () => {
+      window.removeEventListener('resize', onResize);
+      stopCurveTicker(); // Stop ticker and clean up
+    }; // cleanup
   });
   return timeline;
 }
