@@ -136,20 +136,9 @@ export function horizontalLoop(items, config) {
           // Apply rotation (opposite on each side, linear)
           const rotationValue = maxRotation * normalizedPosition;
 
-          // Set transform origin based on rotation direction
-          // Rotating right (positive rotation) -> pivot from bottom left
-          // Rotating left (negative rotation) -> pivot from bottom right
-          const transformOrigin =
-            rotationValue > 0
-              ? 'left bottom'
-              : rotationValue < 0
-                ? 'right bottom'
-                : 'center bottom';
-
           gsap.set(item, {
             yPercent: yOffset,
             rotation: rotationValue,
-            transformOrigin: transformOrigin,
           });
         });
       },
