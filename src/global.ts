@@ -1,5 +1,6 @@
 import Accordions from '$components/accordions';
 import Dialog from '$components/dialog';
+import { generateBreadcrumbGroupParent } from '$components/dynamic-breadcrumbs';
 import NavMenu from '$components/nav/menu';
 import { navbarScrollToggle } from '$components/nav/scroll';
 import { initVideoLightbox } from '$components/video-lightbox';
@@ -25,6 +26,8 @@ window.Webflow?.push(() => {
   addMainElementId();
   handleExternalLinks();
 
+  dataFunctions();
+
   initComponents();
 
   UIFunctions();
@@ -34,6 +37,10 @@ window.Webflow?.push(() => {
 
   loadScrollTimelineCSSPolyfill();
 });
+
+function dataFunctions() {
+  generateBreadcrumbGroupParent();
+}
 
 function initComponents() {
   new NavMenu();
