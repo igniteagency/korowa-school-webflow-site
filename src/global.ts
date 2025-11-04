@@ -1,8 +1,8 @@
 import Accordions from '$components/accordions';
 import Dialog from '$components/dialog';
-import { miniVideoCardLightbox } from '$components/mini-video-card';
 import NavMenu from '$components/nav/menu';
 import { navbarScrollToggle } from '$components/nav/scroll';
+import { initVideoLightbox } from '$components/video-lightbox';
 import { setCurrentYear } from '$utils/current-year';
 import '$utils/disable-webflow-scroll';
 import { disableWebflowAnchorSmoothScroll } from '$utils/disable-webflow-scroll';
@@ -46,7 +46,7 @@ function UIFunctions() {
   duplicateMarqueeList();
   new Accordions();
 
-  miniVideoCardLightbox();
+  initVideoLightbox();
 
   // Counter Loader
   window.conditionalLoadScript('[data-el="counter"]', 'components/counter.js');
