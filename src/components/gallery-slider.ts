@@ -3,10 +3,6 @@
  * Creates a curved arc-based draggable slider using GSAP
  * To use: add GSAP script and this component script to the page
  */
-import type { Draggable } from 'gsap/Draggable';
-import type { InertiaPlugin } from 'gsap/InertiaPlugin';
-import type { MotionPathPlugin } from 'gsap/MotionPathPlugin';
-
 import { horizontalLoop } from '$utils/gsap-draggable-carousel';
 
 class GallerySlider {
