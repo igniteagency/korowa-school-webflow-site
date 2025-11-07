@@ -15,6 +15,11 @@ class GallerySlider {
   CARD_SELECTOR = '[data-gallery-slider-el="card"]';
   PATH_SELECTOR = '[data-gallery-slider-el="path"]';
 
+  DIALOG_IMAGE_LIST_SELECTOR = '[data-gallery-slider-el="dialog-image-list"]';
+  DIALOG_IMAGE_ITEM_SELECTOR = '[data-gallery-slider-el="dialog-image-item"]';
+  DIALOG_IMAGE_PREV_BUTTON_SELECTOR = '[data-gallery-slider-el="dialog-image-prev"]';
+  DIALOG_IMAGE_NEXT_BUTTON_SELECTOR = '[data-gallery-slider-el="dialog-image-next"]';
+
   ACTIVE_CLASSNAME = 'is-active';
 
   components: NodeListOf<HTMLElement> | [];
@@ -56,6 +61,53 @@ class GallerySlider {
           activeElement = element;
         },
       });
+
+      cards.forEach((card) => {
+        this.setDialogImageSlider(card);
+      });
+    });
+  }
+
+  setDialogImageSlider(card: HTMLElement) {
+    const imageList = card.querySelector(this.DIALOG_IMAGE_LIST_SELECTOR);
+    if (!imageList) {
+      console.warn('[Gallery Slider] Dialog image list not found', card);
+      return;
+    }
+
+    const imageItems = Array.from(
+      imageList.querySelectorAll(this.DIALOG_IMAGE_ITEM_SELECTOR)
+    ) as HTMLElement[];
+    const imagesCount = imageItems.length;
+    if (imagesCount === 0) {
+      return;
+    }
+
+    const prevButton = card.querySelector(this.DIALOG_IMAGE_PREV_BUTTON_SELECTOR);
+    const nextButton = card.querySelector(this.DIALOG_IMAGE_NEXT_BUTTON_SELECTOR);
+
+    let currentIndex = 0;
+
+    const showImageAtIndex = (index: number) => {
+      // fade images in and out using gsap
+      imageItems.forEach((item, i) => {
+        if (i === index) {
+          gsap.to(item, { autoAlpha: 1, duration: 0.3 });
+        } else {
+          gsap.to(item, { autoAlpha: 0, duration: 0.3 });
+        }
+      });
+    };
+    showImageAtIndex(currentIndex);
+
+    prevButton?.addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + imagesCount) % imagesCount;
+      showImageAtIndex(currentIndex);
+    });
+
+    nextButton?.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % imagesCount;
+      showImageAtIndex(currentIndex);
     });
   }
 }
