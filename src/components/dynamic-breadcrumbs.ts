@@ -19,8 +19,6 @@ export function generateBreadcrumbGroupParent() {
     const parentName = item.getAttribute(ITEM_PARENT_ATTR) as string;
     const parentLink = item.getAttribute(ITEM_PARENT_LINK_ATTR) as string;
 
-    console.debug({ itemName, itemType, parentName, parentLink });
-
     if (itemType !== 'Sub-Group' || parentName === '') {
       return;
     }
@@ -32,7 +30,7 @@ export function generateBreadcrumbGroupParent() {
     });
   });
 
-  console.debug({ pageSubGroupList });
+  window.IS_DEBUG_MODE && console.debug('[DYNAMIC BREADCRUMB]', { pageSubGroupList });
 
   const BREADCRUMB_SELECTOR = '[data-breadcrumb="group-parent"]';
   const BREADCRUMB_SUB_GROUP_NAME = 'data-breadcrumb-sub-group-name';
