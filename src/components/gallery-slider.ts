@@ -10,20 +10,20 @@ class GallerySlider {
   LIST_SELECTOR = '[data-gallery-slider-el="list"]';
   CARD_SELECTOR = '[data-gallery-slider-el="card"]';
   PATH_SELECTOR = '[data-gallery-slider-el="path"]';
+  IMAGE_LIST_SELECTOR = '[data-gallery-slider-el="image-list"]';
 
   DIALOG_IMAGE_LIST_SELECTOR = '[data-gallery-slider-el="dialog-image-list"]';
-  DIALOG_IMAGE_ITEM_SELECTOR = '[data-gallery-slider-el="dialog-image-item"]';
+  DIALOG_IMAGE_CLASSNAME = 'gallery-slider_dialog_image';
+
   DIALOG_IMAGE_PREV_BUTTON_SELECTOR = '[data-gallery-slider-el="dialog-image-prev"]';
   DIALOG_IMAGE_NEXT_BUTTON_SELECTOR = '[data-gallery-slider-el="dialog-image-next"]';
 
   ACTIVE_CLASSNAME = 'is-active';
 
   components: NodeListOf<HTMLElement> | [];
-  carousels: Map<HTMLElement, ReturnType<typeof this.createArcCarousel>>;
 
   constructor() {
     this.components = document.querySelectorAll(this.COMPONENT_SELECTOR);
-    this.carousels = new Map();
     this.initSliders();
   }
 
@@ -59,8 +59,29 @@ class GallerySlider {
       });
 
       cards.forEach((card) => {
+        this.populateDialogImageSlider(card);
         this.setDialogImageSlider(card);
       });
+    });
+  }
+
+  populateDialogImageSlider(card: HTMLElement) {
+    const dialogImageList = card.querySelector(this.DIALOG_IMAGE_LIST_SELECTOR);
+    if (!dialogImageList) {
+      console.warn('[Gallery Slider] Dialog image list not found', card);
+      return;
+    }
+
+    const imageList = card.querySelectorAll(`${this.IMAGE_LIST_SELECTOR} img`);
+    if (imageList.length === 0) {
+      console.warn('[Gallery Slider] No images found for dialog slider', card);
+      return;
+    }
+
+    imageList.forEach((img, index) => {
+      const imgClone = img.cloneNode(true) as HTMLImageElement;
+      imgClone.className = this.DIALOG_IMAGE_CLASSNAME;
+      dialogImageList.appendChild(imgClone);
     });
   }
 
@@ -71,9 +92,7 @@ class GallerySlider {
       return;
     }
 
-    const imageItems = Array.from(
-      imageList.querySelectorAll(this.DIALOG_IMAGE_ITEM_SELECTOR)
-    ) as HTMLElement[];
+    const imageItems = Array.from(imageList.querySelectorAll('img')) as HTMLElement[];
     const imagesCount = imageItems.length;
     if (imagesCount === 0) {
       return;
