@@ -270,6 +270,7 @@ export function horizontalLoop(items, config) {
       draggable = Draggable.create(proxy, {
         trigger: items[0].parentNode,
         type: 'x',
+        dragClickables: false,
         onPressInit() {
           let x = this.x;
           gsap.killTweensOf(tl);

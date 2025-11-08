@@ -3,10 +3,6 @@
  * Creates a curved arc-based draggable slider using GSAP
  * To use: add GSAP script and this component script to the page
  */
-import type { Draggable } from 'gsap/Draggable';
-import type { InertiaPlugin } from 'gsap/InertiaPlugin';
-import type { MotionPathPlugin } from 'gsap/MotionPathPlugin';
-
 import { horizontalLoop } from '$utils/gsap-draggable-carousel';
 
 class GallerySlider {
@@ -14,15 +10,22 @@ class GallerySlider {
   LIST_SELECTOR = '[data-gallery-slider-el="list"]';
   CARD_SELECTOR = '[data-gallery-slider-el="card"]';
   PATH_SELECTOR = '[data-gallery-slider-el="path"]';
+  IMAGE_LIST_SELECTOR = '[data-gallery-slider-el="image-list"]';
+
+  DIALOG_IMAGE_LIST_SELECTOR = '[data-gallery-slider-el="dialog-image-list"]';
+  DIALOG_IMAGE_CLASSNAME = 'gallery-slider_dialog_image';
+
+  DIALOG_IMAGE_PREV_BUTTON_SELECTOR = '[data-gallery-slider-el="dialog-image-prev"]';
+  DIALOG_IMAGE_NEXT_BUTTON_SELECTOR = '[data-gallery-slider-el="dialog-image-next"]';
 
   ACTIVE_CLASSNAME = 'is-active';
 
+  WEBFLOW_IMAGE_EMPTY_CLASSNAME = 'w-dyn-bind-empty';
+
   components: NodeListOf<HTMLElement> | [];
-  carousels: Map<HTMLElement, ReturnType<typeof this.createArcCarousel>>;
 
   constructor() {
     this.components = document.querySelectorAll(this.COMPONENT_SELECTOR);
-    this.carousels = new Map();
     this.initSliders();
   }
 
@@ -56,6 +59,84 @@ class GallerySlider {
           activeElement = element;
         },
       });
+
+      cards.forEach((card) => {
+        this.populateDialogImageSlider(card);
+        this.setDialogImageSlider(card);
+      });
+    });
+  }
+
+  populateDialogImageSlider(card: HTMLElement) {
+    const dialogImageList = card.querySelector(this.DIALOG_IMAGE_LIST_SELECTOR);
+    if (!dialogImageList) {
+      console.warn('[Gallery Slider] Dialog image list not found', card);
+      return;
+    }
+
+    dialogImageList.innerHTML = '';
+
+    const imageList = card.querySelectorAll(`${this.IMAGE_LIST_SELECTOR} img`);
+
+    // remove all unset images from the array. also delete them from DOM
+    const filteredImageList = Array.from(imageList).filter((img) => {
+      if (img.classList.contains(this.WEBFLOW_IMAGE_EMPTY_CLASSNAME)) {
+        img.remove();
+        return false;
+      }
+      return true;
+    });
+
+    if (filteredImageList.length === 0) {
+      console.warn('[Gallery Slider] No images found for dialog slider', card);
+      return;
+    }
+
+    filteredImageList.forEach((img, index) => {
+      const imgClone = img.cloneNode(true) as HTMLImageElement;
+      imgClone.className = this.DIALOG_IMAGE_CLASSNAME;
+      dialogImageList.appendChild(imgClone);
+    });
+  }
+
+  setDialogImageSlider(card: HTMLElement) {
+    const imageList = card.querySelector(this.DIALOG_IMAGE_LIST_SELECTOR);
+    if (!imageList) {
+      console.warn('[Gallery Slider] Dialog image list not found', card);
+      return;
+    }
+
+    const imageItems = Array.from(imageList.querySelectorAll('img')) as HTMLElement[];
+    const imagesCount = imageItems.length;
+    if (imagesCount === 0) {
+      return;
+    }
+
+    const prevButton = card.querySelector(this.DIALOG_IMAGE_PREV_BUTTON_SELECTOR);
+    const nextButton = card.querySelector(this.DIALOG_IMAGE_NEXT_BUTTON_SELECTOR);
+
+    let currentIndex = 0;
+
+    const showImageAtIndex = (index: number) => {
+      // fade images in and out using gsap
+      imageItems.forEach((item, i) => {
+        if (i === index) {
+          gsap.to(item, { autoAlpha: 1, duration: 0.3 });
+        } else {
+          gsap.to(item, { autoAlpha: 0, duration: 0.3 });
+        }
+      });
+    };
+    showImageAtIndex(currentIndex);
+
+    prevButton?.addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + imagesCount) % imagesCount;
+      showImageAtIndex(currentIndex);
+    });
+
+    nextButton?.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % imagesCount;
+      showImageAtIndex(currentIndex);
     });
   }
 }
