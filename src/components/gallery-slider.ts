@@ -20,6 +20,8 @@ class GallerySlider {
 
   ACTIVE_CLASSNAME = 'is-active';
 
+  WEBFLOW_IMAGE_EMPTY_CLASSNAME = 'w-dyn-bind-empty';
+
   components: NodeListOf<HTMLElement> | [];
 
   constructor() {
@@ -72,13 +74,25 @@ class GallerySlider {
       return;
     }
 
+    dialogImageList.innerHTML = '';
+
     const imageList = card.querySelectorAll(`${this.IMAGE_LIST_SELECTOR} img`);
-    if (imageList.length === 0) {
+
+    // remove all unset images from the array. also delete them from DOM
+    const filteredImageList = Array.from(imageList).filter((img) => {
+      if (img.classList.contains(this.WEBFLOW_IMAGE_EMPTY_CLASSNAME)) {
+        img.remove();
+        return false;
+      }
+      return true;
+    });
+
+    if (filteredImageList.length === 0) {
       console.warn('[Gallery Slider] No images found for dialog slider', card);
       return;
     }
 
-    imageList.forEach((img, index) => {
+    filteredImageList.forEach((img, index) => {
       const imgClone = img.cloneNode(true) as HTMLImageElement;
       imgClone.className = this.DIALOG_IMAGE_CLASSNAME;
       dialogImageList.appendChild(imgClone);
