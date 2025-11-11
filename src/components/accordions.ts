@@ -2,6 +2,7 @@ class Accordions {
   private readonly ITEM_SELECTOR = 'details:not([data-accordion="false"])';
   private readonly ANIMATION_DURATION = 0.3;
   private readonly CLOSE_OTHER_ACCORDIONS = true;
+  private accordionGroups: Map<string, HTMLDetailsElement[]> = new Map();
 
   constructor() {
     this.init();
@@ -9,6 +10,16 @@ class Accordions {
 
   private init() {
     const accordionsList = document.querySelectorAll<HTMLDetailsElement>(this.ITEM_SELECTOR);
+
+    // Group accordions by data-group attribute
+    accordionsList.forEach((accordion) => {
+      const group = accordion.getAttribute('data-group') || 'default';
+      if (!this.accordionGroups.has(group)) {
+        this.accordionGroups.set(group, []);
+      }
+      this.accordionGroups.get(group)?.push(accordion);
+    });
+
     accordionsList.forEach((accordion) => {
       // Extend accordion with methods
       accordion.openAccordion = () => {
@@ -29,7 +40,7 @@ class Accordions {
         const isOpening = !accordion.open;
 
         if (isOpening) {
-          this.openAccordionInternal(accordion, content, accordionsList);
+          this.openAccordionInternal(accordion, content);
         } else {
           this.closeAccordionInternal(accordion, content);
         }
@@ -37,11 +48,7 @@ class Accordions {
     });
   }
 
-  private openAccordionInternal(
-    accordion: HTMLDetailsElement,
-    content: HTMLElement,
-    accordionsList: NodeListOf<HTMLDetailsElement>
-  ) {
+  private openAccordionInternal(accordion: HTMLDetailsElement, content: HTMLElement) {
     accordion.open = true;
     const height = content.scrollHeight;
     gsap.fromTo(
@@ -59,7 +66,12 @@ class Accordions {
     accordion.dispatchEvent(new CustomEvent('onAccordionOpen', { detail: { accordion } }));
 
     if (this.CLOSE_OTHER_ACCORDIONS) {
-      accordionsList.forEach((other) => {
+      // Get the group this accordion belongs to
+      const group = accordion.dataset.group || 'default';
+      const accordionsInGroup = this.accordionGroups.get(group) || [];
+
+      // Only close other accordions within the same group
+      accordionsInGroup.forEach((other) => {
         if (other !== accordion && other.open) {
           other.querySelector('summary')?.click();
         }
