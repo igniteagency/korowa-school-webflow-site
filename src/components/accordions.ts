@@ -1,5 +1,5 @@
 class Accordions {
-  private readonly ITEM_SELECTOR = 'details:not([data-accordion="false"])';
+  private readonly ITEM_SELECTOR = 'details:not([data-accordion="false"], [data-group="tab"])';
   private readonly ANIMATION_DURATION = 0.3;
   private readonly CLOSE_OTHER_ACCORDIONS = true;
   private accordionGroups: Map<string, HTMLDetailsElement[]> = new Map();
@@ -21,25 +21,24 @@ class Accordions {
     });
 
     accordionsList.forEach((accordion) => {
+      const toggle = accordion.querySelector('summary');
+      const content = accordion.querySelector('summary + div');
+
       // Extend accordion with methods
       accordion.openAccordion = () => {
-        if (!accordion.open) accordion.querySelector('summary')?.click();
+        this.openAccordionInternal(accordion, content!);
       };
 
       accordion.closeAccordion = () => {
         if (accordion.open) accordion.querySelector('summary')?.click();
       };
 
-      const toggle = accordion.querySelector('summary');
-      const content = accordion.querySelector('summary + div');
-
       if (!toggle || !content) return;
 
       toggle.addEventListener('click', (event) => {
         event.preventDefault();
-        const isOpening = !accordion.open;
 
-        if (isOpening) {
+        if (!accordion.open) {
           this.openAccordionInternal(accordion, content);
         } else {
           this.closeAccordionInternal(accordion, content);
