@@ -12,8 +12,6 @@ import addMainElementId from '$utils/main-element-id';
 import { duplicateMarqueeList } from '$utils/marquee-list';
 import { addSafariBrowserClass } from '$utils/safari-detection';
 
-gsap.registerPlugin(ScrollTrigger);
-
 window.Webflow = window.Webflow || [];
 window.Webflow?.push(() => {
   setTimeout(() => {
