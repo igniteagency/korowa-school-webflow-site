@@ -10,7 +10,7 @@ import { LOCAL_SERVER } from '$dev/env';
 
 // Add ScriptOptions and ScriptListItem types for global use
 export interface ScriptOptions {
-  placement?: 'head' | 'body';
+  placement: 'head' | 'body';
   defer?: boolean;
   isModule?: boolean;
   name?: string;
