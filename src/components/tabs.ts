@@ -1,3 +1,8 @@
+/**
+ * Self-invoking file. Add it directly to the page that has tabs
+ * E.g: window.loadScript('components/tabs.js');
+ */
+
 export class AutoRotatingTabs {
   private component: HTMLElement;
   private tabs: HTMLDetailsElement[];
@@ -9,6 +14,7 @@ export class AutoRotatingTabs {
 
   private readonly AUTOPLAY_TIMER_CSS_VAR = '--autoplay-timer';
   private readonly OUT_OF_VIEW_CLASS = 'is-out-of-view';
+  private readonly TAB_CLOSING_CLASS = 'is-closing';
 
   constructor(component: HTMLElement) {
     this.component = component;
@@ -34,39 +40,24 @@ export class AutoRotatingTabs {
   }
 
   private init(): void {
-    this.ensureOneTabOpen();
+    this.openTabAtCurrentIndex(); // open the first tab
     this.setupEventListeners();
     this.setupIntersectionObserver();
   }
 
-  private ensureOneTabOpen(): void {
-    const openTabIndex = this.tabs.findIndex((tab) => tab.open);
-
-    if (openTabIndex === -1) {
-      // No tabs open, open the first one
-      this.tabs[0].openAccordion();
-      this.currentTabIndex = 0;
-    } else {
-      // Close all except the first open tab
-      this.tabs.forEach((tab, index) => {
-        if (index !== openTabIndex && tab.open) {
-          tab.closeAccordion();
-        }
-      });
-      this.currentTabIndex = openTabIndex;
-    }
-  }
-
   private setupEventListeners(): void {
     this.tabs.forEach((tab, index) => {
-      tab.addEventListener('toggle', (event) => {
-        if (index === this.currentTabIndex) {
-          event.preventDefault();
+      const toggle = tab.querySelector('summary') as HTMLElement;
+      toggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        if (index === this.currentTabIndex || tab.open) {
           return;
         }
-        if (tab.open) {
-          this.handleTabOpen(index);
-        }
+
+        this.currentTabIndex = index;
+        this.openTabAtCurrentIndex();
       });
     });
   }
@@ -94,16 +85,47 @@ export class AutoRotatingTabs {
     this.intersectionObserver.observe(this.component);
   }
 
-  private handleTabOpen(index: number): void {
-    // Close other tabs
-    this.tabs.forEach((tab, i) => {
-      if (i !== index && tab.open) {
-        tab.closeAccordion();
+  private openTabAtCurrentIndex(): void {
+    const el = this.tabs[this.currentTabIndex];
+    const content = el.querySelector('summary + div') as HTMLElement;
+    el.open = true;
+    this.startAutoRotation();
+
+    const height = content.scrollHeight;
+    gsap.fromTo(
+      content,
+      { height: 0 },
+      {
+        height,
+        duration: 0.3,
+        onComplete: () => {
+          gsap.set(content, { height: 'auto' });
+        },
+      }
+    );
+
+    this.closeOtherTabs();
+  }
+
+  private closeOtherTabs() {
+    this.tabs.forEach((tab, index) => {
+      if (index !== this.currentTabIndex && tab.open) {
+        tab.classList.add(this.TAB_CLOSING_CLASS);
+        const content = tab.querySelector('summary + div') as HTMLElement;
+        gsap.fromTo(
+          content,
+          { height: content.scrollHeight },
+          {
+            height: 0,
+            duration: 0.3,
+            onComplete: () => {
+              tab.open = false;
+              tab.classList.remove(this.TAB_CLOSING_CLASS);
+            },
+          }
+        );
       }
     });
-
-    this.currentTabIndex = index;
-    this.startAutoRotation();
   }
 
   private startAutoRotation(): void {
@@ -126,9 +148,8 @@ export class AutoRotatingTabs {
   }
 
   private rotateToNext(): void {
-    this.tabs[this.currentTabIndex]?.closeAccordion();
     this.currentTabIndex = (this.currentTabIndex + 1) % this.tabs.length;
-    this.tabs[this.currentTabIndex]?.openAccordion();
+    this.openTabAtCurrentIndex();
   }
 
   public destroy(): void {
