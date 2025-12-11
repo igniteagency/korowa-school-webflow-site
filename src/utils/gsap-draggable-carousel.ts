@@ -231,7 +231,36 @@ export function horizontalLoop(items, config) {
       curIndex = newIndex;
       vars.overwrite = true;
       gsap.killTweensOf(proxy);
-      return vars.duration === 0 ? tl.time(timeWrap(time)) : tl.tweenTo(time, vars);
+
+      // Ensure curve ticker runs while programmatic navigation tween is active.
+      if (config.curve) {
+        // start the ticker so updateCurvePositions runs during the tween
+        startCurveTicker();
+        // preserve any user onComplete handler and stop ticker afterwards
+        const userOnComplete = vars.onComplete;
+        vars.onComplete = function () {
+          stopCurveTicker();
+          if (typeof userOnComplete === 'function') {
+            try {
+              userOnComplete.apply(this, arguments);
+            } catch (e) {
+              console.error(e);
+            }
+          }
+        };
+      }
+
+      if (vars.duration === 0) {
+        // immediate jump: set time and update curve once, then stop the ticker
+        const res = tl.time(timeWrap(time));
+        if (config.curve) {
+          updateCurvePositions();
+          stopCurveTicker();
+        }
+        return res;
+      }
+
+      return tl.tweenTo(time, vars);
     }
     tl.toIndex = (index, vars) => toIndex(index, vars);
     tl.closestIndex = (setCurrent) => {

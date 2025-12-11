@@ -12,6 +12,9 @@ class GallerySlider {
   PATH_SELECTOR = '[data-gallery-slider-el="path"]';
   IMAGE_LIST_SELECTOR = '[data-gallery-slider-el="image-list"]';
 
+  NAV_PREV_BUTTON_SELECTOR = '[data-slider-el="nav-prev"]';
+  NAV_NEXT_BUTTON_SELECTOR = '[data-slider-el="nav-next"]';
+
   DIALOG_IMAGE_LIST_SELECTOR = '[data-gallery-slider-el="dialog-image-list"]';
   DIALOG_IMAGE_CLASSNAME = 'gallery-slider_dialog_image';
 
@@ -58,6 +61,16 @@ class GallerySlider {
           element.classList.add(this.ACTIVE_CLASSNAME);
           activeElement = element;
         },
+      });
+
+      const navPrevButtonEl = component.querySelector(this.NAV_PREV_BUTTON_SELECTOR);
+      const navNextButtonEl = component.querySelector(this.NAV_NEXT_BUTTON_SELECTOR);
+
+      navPrevButtonEl?.addEventListener('click', () => {
+        loop.previous({ duration: 0.5 });
+      });
+      navNextButtonEl?.addEventListener('click', () => {
+        loop.next({ duration: 0.5 });
       });
 
       cards.forEach((card) => {
