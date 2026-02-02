@@ -1,6 +1,6 @@
 class Accordions {
   private readonly ITEM_SELECTOR = 'details:not([data-accordion="false"], [data-group="tab"])';
-  private readonly ANIMATION_DURATION = 0.3;
+  private readonly ANIMATION_DURATION = 0.35;
   private readonly CLOSE_OTHER_ACCORDIONS = true;
   private accordionGroups: Map<string, HTMLDetailsElement[]> = new Map();
 
