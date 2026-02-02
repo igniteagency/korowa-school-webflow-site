@@ -14,7 +14,7 @@ const files = [
   './src/entry.ts',
   './src/global.ts',
   './src/components/**/*.ts',
-  './src/pages/**/*.ts',
+  // './src/pages/**/*.ts',
   './src/utils/bugherd-staging-load.ts',
 ];
 
