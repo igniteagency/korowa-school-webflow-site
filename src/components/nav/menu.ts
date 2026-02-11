@@ -19,6 +19,7 @@ class NavMenu {
     if (this.detailsElements.length === 0) return;
 
     this.onNavMenuOpen();
+    this.openActiveGroup();
     this.setupAccordionBehavior();
     this.ensureOneIsOpen();
   }
@@ -41,6 +42,19 @@ class NavMenu {
           this.ensureOneIsOpen();
         }
       });
+    });
+  }
+
+  /**
+   * Open the group that contains the current page link
+   */
+  private openActiveGroup() {
+    this.detailsElements.forEach((details) => {
+      const activeLink = details.querySelector('.w--current');
+      if (activeLink) {
+        details.open = true;
+        this.closeOthersManually(details);
+      }
     });
   }
 
