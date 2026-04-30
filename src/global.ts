@@ -78,6 +78,9 @@ function UIFunctions() {
 
   initVideoLightbox();
 
+  // Inline Vimeo Player Loader
+  window.conditionalLoadScript('[data-video-el="vimeo"]', 'components/inline-vimeo-player.js');
+
   // Counter Loader
   window.conditionalLoadScript('[data-el="counter"]', 'components/counter.js');
 }
