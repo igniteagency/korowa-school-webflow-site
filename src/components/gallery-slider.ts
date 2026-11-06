@@ -93,7 +93,10 @@ class GallerySlider {
 
     // remove all unset images from the array. also delete them from DOM
     const filteredImageList = Array.from(imageList).filter((img) => {
-      if (img.classList.contains(this.WEBFLOW_IMAGE_EMPTY_CLASSNAME)) {
+      if (
+        img.classList.contains(this.WEBFLOW_IMAGE_EMPTY_CLASSNAME) ||
+        (!img.getAttribute('src')?.trim() && !img.getAttribute('srcset')?.trim())
+      ) {
         img.remove();
         return false;
       }
@@ -105,8 +108,19 @@ class GallerySlider {
       return;
     }
 
-    filteredImageList.forEach((img, index) => {
+    filteredImageList.forEach((img) => {
       const imgClone = img.cloneNode(true) as HTMLImageElement;
+      // Retain authored references as inert data, before insertion into the hidden dialog.
+      // Never substitute currentSrc: it may be the small card candidate.
+      const source = img.getAttribute('src')?.trim();
+      const candidates = img.getAttribute('srcset')?.trim();
+      if (source) imgClone.setAttribute('data-gallery-dialog-src', source);
+      if (candidates) imgClone.setAttribute('data-gallery-dialog-srcset', candidates);
+      imgClone.removeAttribute('srcset');
+      imgClone.removeAttribute('src');
+      imgClone.removeAttribute('data-korowa-original-sizes');
+      // A viewport-wide hint is conservative for the existing contained dialog art.
+      imgClone.setAttribute('sizes', '100vw');
       imgClone.className = this.DIALOG_IMAGE_CLASSNAME;
       dialogImageList.appendChild(imgClone);
     });
@@ -129,8 +143,22 @@ class GallerySlider {
     const nextButton = card.querySelector(this.DIALOG_IMAGE_NEXT_BUTTON_SELECTOR);
 
     let currentIndex = 0;
+    const dialog = imageList.closest('dialog');
+    const hydrateCurrentImage = () => {
+      if (!dialog?.open) return;
+      const image = imageItems[currentIndex];
+      const source = image.getAttribute('data-gallery-dialog-src');
+      const candidates = image.getAttribute('data-gallery-dialog-srcset');
+      // Set candidates before fallback src, only for the selected image. Previously
+      // viewed images keep their sources so close/reopen and navigation can use cache.
+      if (candidates && image.getAttribute('srcset') !== candidates) {
+        image.setAttribute('srcset', candidates);
+      }
+      if (source && image.getAttribute('src') !== source) image.setAttribute('src', source);
+    };
 
     const showImageAtIndex = (index: number) => {
+      hydrateCurrentImage();
       // fade images in and out using gsap
       imageItems.forEach((item, i) => {
         if (i === index) {
@@ -140,6 +168,13 @@ class GallerySlider {
         }
       });
     };
+    if (dialog) {
+      // Native showModal(), show(), command triggers and open attribute changes all
+      // work, without depending on the custom event emitted only by dialog.ts.
+      const openObserver = new MutationObserver(hydrateCurrentImage);
+      openObserver.observe(dialog, { attributes: true, attributeFilter: ['open'] });
+      dialog.addEventListener('toggle', hydrateCurrentImage);
+    }
     showImageAtIndex(currentIndex);
 
     prevButton?.addEventListener('click', () => {
